@@ -6,14 +6,14 @@ public class Main {
     public static AtomicInteger nickLengthFour = new AtomicInteger(0);
     public static AtomicInteger nickLengthFive = new AtomicInteger(0);
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         Random random = new Random();
         String[] texts = new String[100_000];
         for (int i = 0; i < texts.length; i++) {
             texts[i] = generateText("abc", 3 + random.nextInt(3));
 
         }
-        new Thread(() -> {
+        Thread thread1 = new Thread(() -> {
             for (String nickName : texts) {
                 if (palindrome(nickName)) {
                     switch (nickName.length()) {
@@ -29,9 +29,9 @@ public class Main {
                     }
                 }
             }
-        }).start();
+        });
 
-        new Thread(() -> {
+        Thread thread2 = new Thread(() -> {
             for (String nickName : texts) {
                 if (oneChar(nickName)) {
                     switch (nickName.length()) {
@@ -48,9 +48,9 @@ public class Main {
                     }
                 }
             }
-        }).start();
+        });
 
-        new Thread(() -> {
+        Thread thread3 = new Thread(() -> {
             for (String nickName : texts) {
                 if (ascending(nickName)) {
                     switch (nickName.length()) {
@@ -67,7 +67,13 @@ public class Main {
 
                 }
             }
-        }).start();
+        });
+        thread1.start();
+        thread2.start();
+        thread3.start();
+        thread1.join();
+        thread2.join();
+        thread3.join();
         System.out.println("Красивых слов c длиной 3: " + nickLengthThree.get() + " шт");
         System.out.println("Красивых слов c длиной 4: " + nickLengthFour.get() + " шт");
         System.out.println("Красивых слов c длиной 5: " + nickLengthFive.get() + " шт");
